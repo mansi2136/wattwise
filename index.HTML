@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WattWise v2.0 | Smart Energy & Carbon Estimator</title>
+  <style>
+    :root {
+      --bg: #090d16;
+      --card: #080808;
+      --primary: #0f766e;
+      --primary-dark:#080808;
+      --danger:#080808;
+      --danger-bg:#080808 ;
+      --success: #080808;
+      --success-bg: #dcfce7;
+      --warning: #080808;
+      --text: #10b981;
+      --muted: #7DF9FFb;
+      --border: #e2e8f0;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      padding: 20px;
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    header {
+      background: linear-gradient(180deg, #7DF9FF, #047857);
+      color: white;
+      padding: 22px 26px;
+      border-radius: 14px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      box-shadow: 0 4px 12px rgba(15, 118, 110, 0.18);
+    }
+
+    header h1 {
+      font-size: 1.75rem;
+      margin-bottom: 4px;
+    }
+
+    header p {
+      opacity: 0.92;
+      font-size: 0.95rem;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+
+    .btn-print {
+      background: white;
+      color: var(--primary-dark);
+      border: none;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+
+    .btn-print:hover {
+      background: #f1f5f9;
+    }
+
+    /* Preset Bar */
+    .preset-bar {
+      background: var(--card);
+      padding: 14px 18px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .preset-buttons {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn-preset {
+      background: #7DF9FF;
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 7px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.88rem;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .btn-preset:hover, .btn-preset.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    /* Summary Cards */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    .stat-card {
+      background: var(--card);
+      padding: 18px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 700;
+    }
+
+    .stat-value {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-top: 6px;
+    }
+
+    .stat-sub {
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    /* Main Content Layout */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1.55fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 850px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .panel {
+      background: var(--card);
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .panel h2 {
+      font-size: 1.15rem;
+      margin-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 10px;
+    }
+
+    /* Appliance Rows */
+    .appliance-item {
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin-bottom: 10px;
+      background: #080808;
+    }
+
+    .appliance-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .appliance-title {
+      font-weight: 600;
+      font-size: 0.98rem;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .watt-tag {
+      font-size: 0.78rem;
+      background: #080808;
+      color: #334155;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-weight: 600;
+    }
+
+    .btn-delete {
+      background: #fee2e2;
+      color: var(--danger);
+      border: none;
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      line-height: 1;
+    }
+
+    .btn-delete:hover {
+      background: #fecaca;
+    }
+
+    .slider-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    input[type="range"] {
+      flex: 1;
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
+
+    .hours-display {
+      min-width: 78px;
+      text-align: right;
+      font-size: 0.88rem;
+      font-weight: 600;
+    }
+
+    .item-stats {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    /* Add Custom Appliance Form */
+    .add-form {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1fr auto;
+      gap: 8px;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px dashed var(--border);
+    }
+
+    @media (max-width: 600px) {
+      .add-form {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .add-form input {
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.88rem;
+    }
+
+    .btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    /* Budget Status Box */
+    .budget-box {
+      padding: 14px;
+      border-radius: 10px;
+      margin-bottom: 16px;
+      border: 1px solid var(--border);
+    }
+
+    .budget-ok {
+      background: var(--success-bg);
+      color: var(--success);
+      border-color: #86efac;
+    }
+
+    .budget-over {
+      background: var(--danger-bg);
+      color: var(--danger);
+      border-color: #fca5a5;
+    }
+
+    /* Insights & Alert Box */
+    .alert-box {
+      background: #fffbeb;
+      border-left: 4px solid var(--warning);
+      padding: 14px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+    }
+
+    .alert-box h3 {
+      font-size: 0.94rem;
+      color: #92400e;
+      margin-bottom: 4px;
+    }
+
+    .alert-box p {
+      font-size: 0.86rem;
+      color: #78350f;
+    }
+
+    .bar-row {
+      margin-bottom: 10px;
+    }
+
+    .bar-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.84rem;
+      margin-bottom: 3px;
+    }
+
+    .bar-track {
+      width: 100%;
+      height: 9px;
+      background: #e2e8f0;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      background: var(--primary);
+      border-radius: 999px;
+      transition: width 0.25s ease;
+    }
+
+    .control-group {
+      margin-top: 16px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+      font-size: 0.88rem;
+    }
+
+    .control-group label {
+      display: flex;
+      justify-content: space-between;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div>
+      <h1>⚡ WattWise</h1>
+      <p>Smart Student & Household Energy, Budget & Carbon Estimator</p>
+    </div>
+    <div class="header-actions">
+      <span class="badge">Environment & Sustainability MVP</span>
+      <button class="btn-print" onclick="window.print()">🖨️ Save / Print Audit</button>
+    </div>
+  </header>
+
+  <!-- Quick Scenario Presets -->
+  <div class="preset-bar">
+    <div>
+      <strong>Quick Sample Presets:</strong>
+      <span style="font-size: 0.85rem; color: var(--muted);">Load fictional room setups to test instantly</span>
+    </div>
+    <div class="preset-buttons">
+      <button class="btn-preset active" id="btn-hostel" onclick="loadPreset('hostel')">🎓 Student Hostel Room</button>
+      <button class="btn-preset" id="btn-home" onclick="loadPreset('home')">🏠 2BHK Family Home</button>
+      <button class="btn-preset" id="btn-lab" onclick="loadPreset('lab')">💻 Tech Study Desk</button>
+    </div>
+  </div>
+
+  <!-- Top Summary Metrics -->
+  <div class="summary-grid">
+    <div class="stat-card">
+      <div class="stat-label">Daily Energy</div>
+      <div class="stat-value" id="dailyKwh">0.00 kWh</div>
+      <div class="stat-sub">Total per 24 hours</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Monthly Consumption</div>
+      <div class="stat-value" id="monthlyKwh">0.0 kWh</div>
+      <div class="stat-sub">Projected 30-day load</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Estimated Monthly Bill</div>
+      <div class="stat-value" id="monthlyCost">₹0</div>
+      <div class="stat-sub">At ₹<span id="rateLabel">8</span> / kWh tariff</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Carbon & Tree Equivalent</div>
+      <div class="stat-value" id="monthlyCarbon">0.0 kg CO₂</div>
+      <div class="stat-sub" id="treeEquiv">Needs ~0 trees to absorb/yr</div>
+    </div>
+  </div>
+
+  <!-- Main Workspace -->
+  <div class="main-grid">
+    <!-- Left Column: Interactive Appliance Sliders -->
+    <div class="panel">
+      <h2>1. Active Appliances (Adjust Hours or Add/Remove)</h2>
+      <div id="applianceList"></div>
+
+      <!-- Add Custom Sample Appliance -->
+      <div class="add-form">
+        <input type="text" id="customName" placeholder="Appliance (e.g. Hair Dryer)" />
+        <input type="number" id="customWatts" placeholder="Watts (e.g. 1200)" min="1" />
+        <input type="number" id="customHours" placeholder="Hours/day" min="0" max="24" step="0.5" />
+        <button class="btn" onclick="addCustomAppliance()">+ Add</button>
+      </div>
+    </div>
+
+    <!-- Right Column: Budget Tracker, Peak Load & Breakdown -->
+    <div class="panel">
+      <h2>2. Budget Guard & Sustainability Insights</h2>
+
+      <!-- Monthly Budget Alert -->
+      <div id="budgetBox" class="budget-box budget-ok">
+        <strong id="budgetStatusTitle">✅ Within Monthly Budget</strong>
+        <div id="budgetStatusSub" style="font-size: 0.85rem; margin-top: 2px;"></div>
+      </div>
+
+      <!-- Highest Load Tip -->
+      <div class="alert-box">
+        <h3 id="topConsumerTitle">Highest Load Appliance: --</h3>
+        <p id="savingTip">Adjust the sliders to see your personalized energy-saving recommendation.</p>
+      </div>
+
+      <h3 style="font-size: 0.92rem; margin-bottom: 10px;">Load Share (% of Total Electricity)</h3>
+      <div id="breakdownBars"></div>
+
+      <!-- Interactive Budget & Tariff Controls -->
+      <div class="control-group">
+        <label for="budgetSlider">
+          <span>Monthly Bill Budget Target:</span>
+          <span>₹<span id="budgetLabel">1200</span></span>
+        </label>
+        <input type="range" id="budgetSlider" min="300" max="5000" step="100" value="1200" oninput="updateBudget(this.value)" />
+      </div>
+
+      <div class="control-group">
+        <label for="tariffSlider">
+          <span>Electricity Tariff Rate:</span>
+          <span>₹<span id="tariffValueLabel">8</span> / kWh</span>
+        </label>
+        <input type="range" id="tariffSlider" min="4" max="15" step="0.5" value="8" oninput="updateTariff(this.value)" />
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Pre-loaded Fictional Sample Presets (Safe, local, no external API keys)
+  const presets = {
+    hostel: [
+      { name: "Ceiling Fan", watts: 75, hours: 8, tip: "Switching to a BLDC fan cuts power usage from 75W to 28W." },
+      { name: "Laptop & Charger", watts: 65, hours: 6, tip: "Unplugging at 100% and enabling battery saver cuts ~15% waste." },
+      { name: "Electric Kettle", watts: 1500, hours: 0.5, tip: "Boil only the exact cups needed; heating extra water spikes load." },
+      { name: "Induction Cooktop", watts: 1800, hours: 1, tip: "Using flat-bottomed, covered pans reduces cooking time by 20%." },
+      { name: "LED Desk & Room Light", watts: 20, hours: 6, tip: "Use natural daylight near windows during daytime study hours." }
+    ],
+    home: [
+      { name: "Air Conditioner (1.5 Ton)", watts: 1500, hours: 5, tip: "Setting the AC to 24°C instead of 18°C saves up to 24% electricity." },
+      { name: "Refrigerator (24x7 Compressor Avg)", watts: 150, hours: 10, tip: "Keep coils clean and avoid opening the door repeatedly." },
+      { name: "Water Heater / Geyser", watts: 2000, hours: 1, tip: "Turn off the geyser switch immediately after bath time." },
+      { name: "Ceiling Fans (x3)", watts: 225, hours: 8, tip: "Turn off fans in unoccupied rooms immediately." },
+      { name: "Washing Machine", watts: 500, hours: 1, tip: "Wash full loads in cold water mode to reduce heater wattage." }
+    ],
+    lab: [
+      { name: "Desktop Monitor + PC", watts: 200, hours: 7, tip: "Set monitor auto-sleep to 5 minutes when stepping away." },
+      { name: "Soldering & Bench Tools", watts: 60, hours: 2, tip: "Switch off bench power supplies immediately after testing circuits." },
+      { name: "Wi-Fi Router & Hub", watts: 15, hours: 24, tip: "Turn off secondary routers overnight to cut phantom standby load." },
+      { name: "Task LED Lamp", watts: 12, hours: 6, tip: "LED task lighting uses 80% less power than overhead tube lights." }
+    ]
+  };
+
+  let appliances = JSON.parse(JSON.stringify(presets.hostel));
+  let tariffPerKwh = 8;
+  let monthlyBudget = 1200;
+  const CO2_PER_KWH = 0.82; // Standard grid emission factor (kg CO2 per kWh)
+
+  function loadPreset(presetKey) {
+    appliances = JSON.parse(JSON.stringify(presets[presetKey]));
+    document.querySelectorAll(".btn-preset").forEach(btn => btn.classList.remove("active"));
+    document.getElementById(`btn-${presetKey}`).classList.add("active");
+    renderAppliances();
+  }
+
+  function renderAppliances() {
+    const listEl = document.getElementById("applianceList");
+    listEl.innerHTML = "";
+
+    appliances.forEach((item, index) => {
+      const itemDailyKwh = (item.watts * item.hours) / 1000;
+      const itemMonthlyCost = itemDailyKwh * 30 * tariffPerKwh;
+
+      const row = document.createElement("div");
+      row.className = "appliance-item";
+      row.innerHTML = `
+        <div class="appliance-header">
+          <span class="appliance-title">${item.name}</span>
+          <div class="header-right">
+            <span class="watt-tag">${item.watts} W</span>
+            <button class="btn-delete" title="Remove Appliance" onclick="removeAppliance(${index})">✕</button>
+          </div>
+        </div>
+        <div class="slider-row">
+          <input type="range" min="0" max="24" step="0.5" value="${item.hours}"
+                 oninput="updateHours(${index}, this.value)" />
+          <span class="hours-display">${item.hours} hrs/day</span>
+        </div>
+        <div class="item-stats">
+          <span>Daily: ${itemDailyKwh.toFixed(2)} kWh</span>
+          <span>Monthly Cost: ₹${Math.round(itemMonthlyCost)}</span>
+        </div>
+      `;
+      listEl.appendChild(row);
+    });
+
+    calculateTotals();
+  }
+
+  function updateHours(index, newHours) {
+    appliances[index].hours = parseFloat(newHours);
+    renderAppliances();
+  }
+
+  function removeAppliance(index) {
+    appliances.splice(index, 1);
+    renderAppliances();
+  }
+
+  function updateTariff(newRate) {
+    tariffPerKwh = parseFloat(newRate);
+    document.getElementById("rateLabel").innerText = tariffPerKwh;
+    document.getElementById("tariffValueLabel").innerText = tariffPerKwh;
+    renderAppliances();
+  }
+
+  function updateBudget(newBudget) {
+    monthlyBudget = parseFloat(newBudget);
+    document.getElementById("budgetLabel").innerText = monthlyBudget;
+    calculateTotals();
+  }
+
+  function addCustomAppliance() {
+    const nameInput = document.getElementById("customName");
+    const wattsInput = document.getElementById("customWatts");
+    const hoursInput = document.getElementById("customHours");
+
+    const name = nameInput.value.trim();
+    const watts = parseFloat(wattsInput.value);
+    const hours = parseFloat(hoursInput.value);
+
+    if (!name || isNaN(watts) || watts <= 0 || isNaN(hours) || hours < 0 || hours > 24) {
+      alert("Please enter a valid appliance name, wattage (>0), and hours (0 to 24).");
+      return;
+    }
+
+    appliances.push({
+      name: name,
+      watts: watts,
+      hours: hours,
+      tip: `Reducing ${name} usage by 30 mins/day saves ${(((watts * 0.5) / 1000) * 30).toFixed(1)} kWh monthly.`
+    });
+
+    nameInput.value = "";
+    wattsInput.value = "";
+    hoursInput.value = "";
+    renderAppliances();
+  }
+
+  // Core Electrical, Budget & Carbon Calculation Function
+  function calculateTotals() {
+    let totalDailyKwh = 0;
+    let highestKwh = -1;
+    let topAppliance = null;
+
+    appliances.forEach(item => {
+      const kwh = (item.watts * item.hours) / 1000;
+      totalDailyKwh += kwh;
+      if (kwh > highestKwh && kwh > 0) {
+        highestKwh = kwh;
+        topAppliance = item;
+      }
+    });
+
+    const monthlyKwh = totalDailyKwh * 30;
+    const monthlyCost = monthlyKwh * tariffPerKwh;
+    const monthlyCarbon = monthlyKwh * CO2_PER_KWH;
+    // 1 mature tree absorbs ~21 kg CO2 per year (~1.75 kg per month)
+    const treesNeeded = Math.max(1, Math.round(monthlyCarbon / 1.75));
+
+    // Update Summary Cards
+    document.getElementById("dailyKwh").innerText = `${totalDailyKwh.toFixed(2)} kWh`;
+    document.getElementById("monthlyKwh").innerText = `${monthlyKwh.toFixed(1)} kWh`;
+    document.getElementById("monthlyCost").innerText = `₹${Math.round(monthlyCost)}`;
+    document.getElementById("monthlyCarbon").innerText = `${monthlyCarbon.toFixed(1)} kg CO₂`;
+    document.getElementById("treeEquiv").innerText = totalDailyKwh > 0
+      ? `Offsets needed: ~${treesNeeded} mature trees`
+      : `0 emissions currently`;
+
+    // Update Budget Guard Box
+    const budgetBox = document.getElementById("budgetBox");
+    const budgetTitle = document.getElementById("budgetStatusTitle");
+    const budgetSub = document.getElementById("budgetStatusSub");
+    const diff = Math.round(monthlyBudget - monthlyCost);
+
+    if (monthlyCost <= monthlyBudget) {
+      budgetBox.className = "budget-box budget-ok";
+      budgetTitle.innerText = `✅ Within Monthly Budget (₹${monthlyBudget})`;
+      budgetSub.innerText = `You are saving ₹${diff} below your target monthly limit.`;
+    } else {
+      budgetBox.className = "budget-box budget-over";
+      budgetTitle.innerText = `🚨 Over Monthly Budget by ₹${Math.abs(diff)}!`;
+      budgetSub.innerText = `Reduce high-wattage appliance hours below to get under ₹${monthlyBudget}.`;
+    }
+
+    // Update Top Consumer Alert
+    const titleEl = document.getElementById("topConsumerTitle");
+    const tipEl = document.getElementById("savingTip");
+
+    if (topAppliance) {
+      const reductionSaving = Math.round(((topAppliance.watts * (topAppliance.hours * 0.2)) / 1000) * 30 * tariffPerKwh);
+      titleEl.innerText = `⚠️ Highest Load: ${topAppliance.name} (${highestKwh.toFixed(2)} kWh/day)`;
+      tipEl.innerText = `${topAppliance.tip} Cutting its daily use by 20% saves ~₹${reductionSaving}/month.`;
+    } else {
+      titleEl.innerText = "All Appliances Off (0 kWh)";
+      tipEl.innerText = "Slide any appliance above 0 hours or select a preset to analyze load.";
+    }
+
+    // Render Percentage Breakdown Bars
+    const barsEl = document.getElementById("breakdownBars");
+    barsEl.innerHTML = "";
+
+    appliances.forEach(item => {
+      const kwh = (item.watts * item.hours) / 1000;
+      const percent = totalDailyKwh > 0 ? Math.round((kwh / totalDailyKwh) * 100) : 0;
+
+      const barDiv = document.createElement("div");
+      barDiv.className = "bar-row";
+      barDiv.innerHTML = `
+        <div class="bar-label">
+          <span>${item.name}</span>
+          <strong>${percent}%</strong>
+        </div>
+        <div class="bar-track">
+          <div class="bar-fill" style="width: ${percent}%;"></div>
+        </div>
+      `;
+      barsEl.appendChild(barDiv);
+    });
+  }
+
+  // Initialize on load
+  renderAppliances();
+</script>
+
+</body>
+</html>
